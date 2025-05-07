@@ -2,9 +2,7 @@
 # Common Django template for GeoNode and Celery services below
 x-common-django:
   &default-common-django
-  build:
-    context: ./
-    dockerfile: Dockerfile
+  image: ${COMPOSE_PROJECT_NAME}/geonode:${GEONODE_BASE_IMAGE_VERSION}
   restart: unless-stopped
   env_file:
     - .env
