@@ -40,7 +40,7 @@ services:
     container_name: celery4${COMPOSE_PROJECT_NAME}
     depends_on:
       django:
-        condition: service_healthy
+        condition: service_started
     environment:
       - IS_CELERY=True
     entrypoint: ["/usr/src/{{project_name}}/entrypoint.sh"]
@@ -142,14 +142,6 @@ volumes:
       o: bind
       device: /mnt/geonoxt/${COMPOSE_PROJECT_NAME}-data
   tmp:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/geonoxt/${COMPOSE_PROJECT_NAME}-tmp
+    name: ${COMPOSE_PROJECT_NAME}-tmp
   rabbitmq:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-rabbitmq
+    name: ${COMPOSE_PROJECT_NAME}-rabbitmq
