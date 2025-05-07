@@ -157,7 +157,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-statics
+      device: /mnt/geonoxt/${COMPOSE_PROJECT_NAME}-statics
   nginx-confd:
     driver: local
     driver_opts:
@@ -175,25 +175,25 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-geoserver-data-dir
+      device: /mnt/geonoxt/${COMPOSE_PROJECT_NAME}-geoserver-data-dir
   backup-restore:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-backup-restore
+      device: /mnt/geonoxt/${COMPOSE_PROJECT_NAME}-backup-restore
   data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-data
+      device: /mnt/geonoxt/${COMPOSE_PROJECT_NAME}-data
   tmp:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-tmp
+      device: /mnt/geonoxt/${COMPOSE_PROJECT_NAME}-tmp
   rabbitmq:
     driver: local
     driver_opts:
