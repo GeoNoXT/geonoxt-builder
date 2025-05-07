@@ -1,5 +1,5 @@
 FROM geonode/geonode-base:latest-ubuntu-22.04
-LABEL GeoNode development team
+LABEL maintainer="GeoNode development team"
 
 RUN mkdir -p /usr/src/{{project_name}}
 

@@ -13,9 +13,6 @@ x-common-django:
     - backup-restore:/backup_restore
     - data:/data
     - tmp:/tmp
-  depends_on:
-    db:
-      condition: service_healthy
 
 services:
 
@@ -146,28 +143,6 @@ services:
     healthcheck:
       test: "ls -A '/geoserver_data/data' | wc -l"
 
-  # PostGIS database.
-  db:
-    image: ${COMPOSE_PROJECT_NAME}/postgis:${POSTGRES_BASE_IMAGE_VERSION}
-    build:
-      context: ./docker/postgresql
-      dockerfile: Dockerfile
-      args:
-        - BASE_IMAGE_VERSION=${POSTGRES_BASE_IMAGE_VERSION}
-    command: postgres -c "max_connections=${POSTGRESQL_MAX_CONNECTIONS}"
-    container_name: db4${COMPOSE_PROJECT_NAME}
-    env_file:
-      - .env
-    volumes:
-      - dbdata:/var/lib/postgresql/data
-      - dbbackups:/pg_backups
-    restart: unless-stopped
-    healthcheck:
-      test: "pg_isready -d postgres -U postgres"
-    # uncomment to enable remote connections to postgres
-    #ports:
-    #  - "5432:5432"
-
   # Vanilla RabbitMQ service. This is needed by celery
   rabbitmq:
     image: rabbitmq:3-alpine
@@ -201,18 +176,6 @@ volumes:
       type: none
       o: bind
       device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-geoserver-data-dir
-  dbdata:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-dbdata
-  dbbackups:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /mnt/geonoxt-volumes/${COMPOSE_PROJECT_NAME}-dbbackups
   backup-restore:
     driver: local
     driver_opts:
