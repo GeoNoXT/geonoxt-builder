@@ -59,6 +59,12 @@ location /geoserver {
   proxy_redirect http://$upstream $HTTP_SCHEME://$HTTP_HOST;
   proxy_request_buffering  off;
   client_max_body_size 0;
+
+  if ($arg_FORMAT = "image/vnd.jpeg-png8" || $arg_FORMAT = "image/png") {
+    expires 30d;
+    add_header Pragma "public";
+    add_header Cache-Control "max-age=31536000, public";
+  }
 }
 
 # GeoNode
