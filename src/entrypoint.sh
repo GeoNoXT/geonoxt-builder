@@ -5,18 +5,22 @@ set -e
 
 INVOKE_LOG_STDOUT=${INVOKE_LOG_STDOUT:-FALSE}
 invoke () {
-    if [ $INVOKE_LOG_STDOUT = 'true' ] || [ $INVOKE_LOG_STDOUT = 'True' ]
+    if [ "${INVOKE_LOG_STDOUT}" = 'true' ] || [ "${INVOKE_LOG_STDOUT}" = 'True' ]
     then
+        # shellcheck disable=SC2068
         /usr/local/bin/invoke $@
     else
-        /usr/local/bin/invoke $@ > /usr/src/{{project_name}}/invoke.log 2>&1
+        # shellcheck disable=SC2068
+        /usr/local/bin/invoke $@ > /tmp/invoke.log 2>&1
     fi
+    # shellcheck disable=SC2145
     echo "$@ tasks done"
 }
 
-# Start cron service
-service cron restart
+# Start cron && memcached services
+service cron restart &
 
+# shellcheck disable=SC2028
 echo $"\n\n\n"
 echo "-----------------------------------------------------"
 echo "STARTING DJANGO ENTRYPOINT $(date)"
@@ -42,25 +46,37 @@ echo MONITORING_DATA_TTL=$MONITORING_DATA_TTL
 
 # invoke waitfordbs
 
+# shellcheck disable=SC2124
 cmd="$@"
 
-if [ ${IS_CELERY} = "true" ]  || [ ${IS_CELERY} = "True" ]
+if [ "${IS_CELERY}" = "true" ] || [ "${IS_CELERY}" = "True" ]
 then
     echo "Executing Celery server $cmd for Production"
-else
-
+elif [ "${FRESH_INSTALL}" = "true" ] || [ "${FRESH_INSTALL}" = "True" ]
+then
+    echo "Executing fresh installation tasks, this must be run only once"
     invoke migrations
-    invoke prepare
-
-    if [ ${FORCE_REINIT} = "true" ]  || [ ${FORCE_REINIT} = "True" ] || [ ! -e "/mnt/volumes/statics/geonode_init.lock" ]; then
+    invoke createcachetable
+    if [ "${FORCE_REINIT}" = "true" ]  || [ "${FORCE_REINIT}" = "True" ] || [ ! -e "/mnt/volumes/statics/geonode_init.lock" ]; then
+        echo "Fresh install and force reinit is true"
+        invoke prepare
         invoke fixtures
-        invoke monitoringfixture
-        invoke initialized
         invoke updateadmin
+        invoke initialized
     fi
-
     invoke statics
-
+else
+    if [ "${RUN_MIGRATIONS}" = "true" ]  || [ "${RUN_MIGRATIONS}" = "True" ]
+    then
+        invoke migrations
+    fi
+    if [ "${FORCE_REINIT}" = "true" ]  || [ "${FORCE_REINIT}" = "True" ] || [ ! -e "/mnt/volumes/statics/geonode_init.lock" ]; then
+        echo "force reinit is true"
+        invoke prepare
+        invoke fixtures
+        invoke updateadmin
+        invoke initialized
+    fi
     echo "Executing UWSGI server $cmd for Production"
 fi
 
