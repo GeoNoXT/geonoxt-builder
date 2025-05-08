@@ -260,27 +260,6 @@ if [ "${GEOSERVER_CORS_ENABLED}" = "true" ] || [ "${GEOSERVER_CORS_ENABLED}" = "
   fi
 fi
 
-if ! grep -q "CacheControlFilter" "$CATALINA_HOME/webapps/geoserver/WEB-INF/web.xml"; then
-  echo "Agregando configuración de caché para $CATALINA_HOME/webapps/geoserver/WEB-INF/web.xml"
-  sed -i "\:</web-app>:i\\
-  <filter>\n\
-    <filter-name>CacheControlFilter</filter-name>\n\
-    <filter-class>org.apache.catalina.filters.ExpiresFilter</filter-class>\n\
-    <init-param>\n\
-      <param-name>ExpiresByType image/png8</param-name>\n\
-      <param-value>access plus 30 days</param-value>\n\
-    </init-param>\n\
-    <init-param>\n\
-      <param-name>ExpiresByType image/vnd.jpeg-png8</param-name>\n\
-      <param-value>access plus 30 days</param-value>\n\
-    </init-param>\n\
-  </filter>\n\
-  <filter-mapping>\n\
-    <filter-name>CacheControlFilter</filter-name>\n\
-    <url-pattern>/*</url-pattern>\n\
-  </filter-mapping>" "$CATALINA_HOME/webapps/geoserver/WEB-INF/web.xml";
-fi
-
 if [ ${FORCE_REINIT} = "true" ]  || [ ${FORCE_REINIT} = "True" ] || [ ! -e "${GEOSERVER_DATA_DIR}/geoserver_init.lock" ]; then
     # Run async configuration, it needs Geoserver to be up and running
     # executes step configure-geoserver from task.py file
